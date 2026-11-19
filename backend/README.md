@@ -6,7 +6,7 @@ Base de datos relacional con migraciones para la aplicación de geolocalización
 
 - PHP 8.2+
 - Composer 2+
-- **MySQL 8.0+** (necesario para la columna espacial `POINT` con SRID 4326)
+- **MySQL 8.0+** (recomendado; crea la columna espacial `POINT` SRID 4326) o **MariaDB 10.x** (la migración espacial se omite automáticamente)
 
 ## Instalación (después de clonar)
 
@@ -20,6 +20,7 @@ composer install
 cp .env.example .env             # Windows: copy .env.example .env
 php artisan key:generate
 php artisan migrate --force
+php artisan db:seed --force
 php -S 127.0.0.1:8000 -t public public/index.php
 ```
 
@@ -35,9 +36,23 @@ Configurar `DB_*` en `.env` y ejecutar:
 
 ```bash
 php artisan migrate
+php artisan db:seed
 ```
 
-> Según lo solicitado, **no se incluye seeder**: las migraciones crean la estructura y los datos se cargarán por otro medio.
+`DatabaseSeeder` carga los roles, las categorías y los **162 establecimientos** desde `../data/establecimientos.json`. Es idempotente porque usa `updateOrCreate` por `external_code`.
+
+## Endpoints
+
+| Ruta | Descripción |
+|---|---|
+| `GET /` | Página principal (`resources/views/inicio.blade.php`) |
+| `GET /api/establishments` | Establecimientos desde la base de datos |
+| `POST /auth/register` | Registro de usuario |
+| `POST /auth/login` | Inicio de sesión |
+| `GET /auth/me` | Usuario autenticado |
+| `POST /auth/logout` | Cierre de sesión |
+| `GET|POST /api/products` | Listar / crear productos del usuario |
+| `PUT|DELETE /api/products/{id}` | Editar / eliminar producto |
 
 ## Tablas creadas
 
@@ -64,6 +79,6 @@ php artisan migrate
 
 ## Notas de diseño
 
-- `establishments.location` es una columna **generada** `POINT NOT NULL SRID 4326` derivada de `latitude`/`longitude`, con índice `SPATIAL` para consultas por distancia.
+- En MySQL 8, `establishments.location` es una columna **generada** `POINT NOT NULL SRID 4326` derivada de `latitude`/`longitude`, con índice `SPATIAL`. En MariaDB esa migración se omite y se usan solo `latitude`/`longitude`.
 - Los emprendedores solo pueden consultar sus propias oportunidades: todas las tablas de negocio llevan `user_id` y la consulta debe filtrarse por el usuario autenticado.
 - Un comercio puede estar registrado en el mapa sin haber confirmado que recibe proveedores: `has_account` y `supplier_confirmed` son independientes de `receives_suppliers`.
