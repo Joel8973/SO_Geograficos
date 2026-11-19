@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0b6e4f">
+  <meta name="description" content="Mapa de oportunidades: conecta emprendedores con tiendas, minimercados y supermercados.">
+  <title>Mapa de Oportunidades · Latacunga</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="app">
+  <!-- ==================== BARRA SUPERIOR ==================== -->
+  <header class="topbar">
+    <button id="btnMenu" class="icon-btn" aria-label="Abrir menú">☰</button>
+    <div class="brand">
+      <span class="brand-icon">📍</span>
+      <div><strong>Mapa de Oportunidades</strong><small>Latacunga · Cotopaxi</small></div>
+    </div>
+    <button id="btnPerfil" class="avatar" aria-label="Mi perfil">?</button>
+  </header>
+
+  <!-- ==================== CONTENIDO ==================== -->
+  <main id="main">
+    <!-- ---------- PANTALLA: MAPA ---------- -->
+    <section id="view-mapa" class="view active">
+      <div class="buscador">
+        <input id="busqueda" type="search" placeholder="Buscar por ciudad, sector o nombre…" aria-label="Buscar establecimientos">
+        <button id="btnUbicacion" class="btn btn-small" title="Usar mi ubicación">🎯 Mi ubicación</button>
+      </div>
+
+      <div id="filtros" class="filtros">
+        <button class="chip activo" data-filtro="todos">Todos</button>
+        <button class="chip" data-filtro="Tienda">🏪 Tiendas</button>
+        <button class="chip" data-filtro="Minimercado">🏬 Minimercados</button>
+        <button class="chip" data-filtro="Supermercado">🏢 Supermercados</button>
+        <button class="chip" data-filtro="recibe">✅ Recibe propuestas</button>
+        <select id="filtroCategoria" aria-label="Filtrar por categoría"><option value="">Todas las categorías</option></select>
+        <select id="filtroDistancia" aria-label="Filtrar por distancia">
+          <option value="0">Cualquier distancia</option>
+          <option value="2">2 km</option><option value="5">5 km</option><option value="10">10 km</option><option value="25">25 km</option>
+        </select>
+      </div>
+
+      <div class="vista-toggle">
+        <button id="btnVerMapa" class="activo">🗺️ Mapa</button>
+        <button id="btnVerLista">📋 Listado (<span id="numResultados">0</span>)</button>
+      </div>
+
+      <div id="mapaContainer" class="mapa-container"><div id="map"></div></div>
+      <div id="listaContainer" class="lista-container hidden"></div>
+    </section>
+
+    <!-- ---------- PANTALLA: FICHA ---------- -->
+    <section id="view-ficha" class="view">
+      <button class="btn-volver" onclick="App.mostrar('mapa')">← Volver al mapa</button>
+      <div id="fichaContenido"></div>
+    </section>
+
+    <!-- ---------- PANTALLA: PRODUCTOS ---------- -->
+    <section id="view-productos" class="view">
+      <div class="cabecera-seccion">
+        <h2>Mis productos</h2>
+        <button class="btn btn-primary" onclick="App.abrirFormProducto()">+ Nuevo producto</button>
+      </div>
+      <div id="listaProductos" class="tarjetas"></div>
+      <div class="acciones-catalogo">
+        <button class="btn" onclick="App.compartirCatalogo()">🔗 Compartir catálogo</button>
+        <button class="btn" onclick="App.descargarCatalogoPDF()">📄 Descargar ficha PDF</button>
+      </div>
+    </section>
+
+    <!-- ---------- PANTALLA: OPORTUNIDADES ---------- -->
+    <section id="view-oportunidades" class="view">
+      <div class="cabecera-seccion"><h2>Mis oportunidades</h2></div>
+      <div id="estadisticas" class="estadisticas"></div>
+      <div id="kanban" class="kanban"></div>
+      <div id="listaOportunidades"></div>
+    </section>
+
+    <!-- ---------- PANTALLA: ADMIN ---------- -->
+    <section id="view-admin" class="view">
+      <div class="cabecera-seccion"><h2>Panel administrativo</h2></div>
+      <div class="admin-grid" id="adminGrid"></div>
+      <div id="adminContenido"></div>
+    </section>
+
+    <!-- ---------- PANTALLA: REPORTES ---------- -->
+    <section id="view-reportes" class="view">
+      <div class="cabecera-seccion"><h2>Reportes e indicadores</h2></div>
+      <div id="reportesContenido"></div>
+    </section>
+  </main>
+
+  <!-- ==================== NAVEGACIÓN INFERIOR ==================== -->
+  <nav class="bottom-nav">
+    <button data-nav="mapa" class="activo">🗺️<span>Mapa</span></button>
+    <button data-nav="productos">📦<span>Productos</span></button>
+    <button data-nav="oportunidades">🤝<span>Oportunidades</span></button>
+    <button data-nav="admin" class="nav-admin">⚙️<span>Admin</span></button>
+  </nav>
+</div>
+
+<!-- ==================== MODALES ==================== -->
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <button class="modal-cerrar" onclick="App.cerrarModal()" aria-label="Cerrar">✕</button>
+    <div id="modalContenido"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Google Maps JavaScript API se carga dinámicamente desde js/app.js
+     usando la clave definida en js/config.js -->
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
