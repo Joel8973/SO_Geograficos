@@ -17,7 +17,17 @@
       <span class="brand-icon">📍</span>
       <div><strong>Mapa de Oportunidades</strong><small>Latacunga · Cotopaxi</small></div>
     </div>
-    <button id="btnPerfil" class="avatar" aria-label="Mi perfil">?</button>
+    <nav class="top-navigation" aria-label="Navegación superior">
+      <button data-nav="mapa" class="activo" onclick="App.mostrar('mapa')">🗺️ Explorar</button>
+      <button data-nav="productos" onclick="App.mostrar('productos')">📦 Productos</button>
+      <button data-nav="oportunidades" onclick="App.mostrar('oportunidades')">🤝 Oportunidades</button>
+      <button data-nav="admin" onclick="App.mostrar('admin')">⚙️ Administración</button>
+    </nav>
+    <div class="topbar-actions">
+      <span class="location-indicator"><span class="live-dot"></span> Latacunga, Ecuador</span>
+      <button id="btnNotificaciones" class="icon-btn notification-button" aria-label="Notificaciones">🔔<span class="notification-badge" id="notificationCount">3</span></button>
+      <button id="btnPerfil" class="avatar" aria-label="Mi perfil">?</button>
+    </div>
   </header>
 
   <main id="main">
@@ -82,7 +92,10 @@
 
     <section id="view-productos" class="view">
       <div class="cabecera-seccion">
-        <h2>Mis productos</h2>
+        <div>
+          <h2>Mis productos</h2>
+          <p class="section-desc">Administra tu catálogo y preséntalo a nuevos establecimientos.</p>
+        </div>
         <button class="btn btn-primary" onclick="App.abrirFormProducto()">+ Nuevo producto</button>
       </div>
       <div id="listaProductos" class="tarjetas"></div>
@@ -93,20 +106,35 @@
     </section>
 
     <section id="view-oportunidades" class="view">
-      <div class="cabecera-seccion"><h2>Mis oportunidades</h2></div>
+      <div class="cabecera-seccion">
+        <div>
+          <h2>Mis oportunidades</h2>
+          <p class="section-desc">Organiza tus contactos y da seguimiento a tus posibles clientes.</p>
+        </div>
+      </div>
       <div id="estadisticas" class="estadisticas"></div>
       <div id="kanban" class="kanban"></div>
       <div id="listaOportunidades" class="tarjetas"></div>
     </section>
 
     <section id="view-admin" class="view">
-      <div class="cabecera-seccion"><h2>Panel administrativo</h2></div>
+      <div class="cabecera-seccion">
+        <div>
+          <h2>Panel administrativo</h2>
+          <p class="section-desc">Gestiona establecimientos, usuarios y registros de la plataforma.</p>
+        </div>
+      </div>
       <div class="admin-grid" id="adminGrid"></div>
       <div id="adminContenido"></div>
     </section>
 
     <section id="view-reportes" class="view">
-      <div class="cabecera-seccion"><h2>Reportes e indicadores</h2></div>
+      <div class="cabecera-seccion">
+        <div>
+          <h2>Reportes e indicadores</h2>
+          <p class="section-desc">Consulta el impacto real: primeros pedidos y puntos de venta activos.</p>
+        </div>
+      </div>
       <div id="reportesContenido"></div>
     </section>
   </main>
@@ -128,8 +156,84 @@
 
 <div id="toast" class="toast"></div>
 
+<div id="notificationPanel" class="floating-panel hidden">
+  <div class="floating-panel-header">
+    <div><strong>Notificaciones</strong><small>Tus novedades</small></div>
+    <button id="markNotifications" class="text-action">Marcar leídas</button>
+  </div>
+  <div class="notification-item">
+    <span class="notification-icon">🏪</span>
+    <div><strong>Bienvenido</strong><p>Explora los establecimientos disponibles.</p><small>Mensaje de ejemplo</small></div>
+  </div>
+  <div class="notification-item">
+    <span class="notification-icon">📦</span>
+    <div><strong>Tu catálogo</strong><p>Registra productos para encontrar oportunidades.</p><small>Mensaje de ejemplo</small></div>
+  </div>
+  <div class="notification-item">
+    <span class="notification-icon">🤝</span>
+    <div><strong>Conecta y crece</strong><p>Contacta con nuevos establecimientos.</p><small>Mensaje de ejemplo</small></div>
+  </div>
+</div>
+
+<div id="profilePanel" class="floating-panel profile-panel hidden">
+  <div class="profile-panel-user">
+    <span class="profile-avatar large">U</span>
+    <div><strong>Mi cuenta</strong><small>Emprendedor</small></div>
+  </div>
+  <button onclick="App.mostrar('productos')">📦 Mis productos</button>
+  <button onclick="App.mostrar('oportunidades')">🤝 Mis oportunidades</button>
+  <button onclick="App.mostrar('reportes')">📊 Reportes</button>
+</div>
+
 <script src="js/config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const btnNotificaciones = document.getElementById('btnNotificaciones');
+  const btnPerfil = document.getElementById('btnPerfil');
+  const panelNotificaciones = document.getElementById('notificationPanel');
+  const panelPerfil = document.getElementById('profilePanel');
+  const contador = document.getElementById('notificationCount');
+
+  function cerrarPaneles() {
+    panelNotificaciones.classList.add('hidden');
+    panelPerfil.classList.add('hidden');
+  }
+
+  btnNotificaciones.addEventListener('click', e => {
+    e.stopPropagation();
+    const abrir = panelNotificaciones.classList.contains('hidden');
+    cerrarPaneles();
+    if (abrir) panelNotificaciones.classList.remove('hidden');
+  });
+
+  btnPerfil.addEventListener('click', e => {
+    e.stopPropagation();
+    const abrir = panelPerfil.classList.contains('hidden');
+    cerrarPaneles();
+    if (abrir) panelPerfil.classList.remove('hidden');
+  });
+
+  panelNotificaciones.addEventListener('click', e => e.stopPropagation());
+  panelPerfil.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', cerrarPaneles);
+
+  document.getElementById('markNotifications').addEventListener('click', () => {
+    document.querySelectorAll('.notification-item').forEach(item => item.classList.add('read'));
+    contador.textContent = '0';
+    contador.classList.add('hidden');
+  });
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarPaneles(); });
+
+  document.querySelectorAll('[data-nav]').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('[data-nav]').forEach(b =>
+        b.classList.toggle('activo', b.dataset.nav === button.dataset.nav));
+    });
+  });
+});
+</script>
 </body>
 </html>
