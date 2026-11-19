@@ -11,6 +11,10 @@ Route::get('/', function () {
     return view('inicio');
 });
 
+Route::get('/login', function () {
+    return response()->json(['message' => 'Inicia sesión para continuar'], 401);
+})->name('login');
+
 // Rutas de autenticación
 Route::prefix('auth')->group(function () {
 

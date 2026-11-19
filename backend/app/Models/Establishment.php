@@ -17,6 +17,8 @@ class Establishment extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $hidden = ['location'];
+
     protected $fillable = [
         'external_code', 'name', 'slug', 'type', 'type_original', 'address',
         'province', 'canton', 'parish', 'sector', 'latitude', 'longitude',

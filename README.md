@@ -6,6 +6,43 @@ Incluye un mapa con **162 establecimientos encuestados**, fichas con condiciones
 
 ---
 
+## Inicio rápido — copiar y pegar
+
+### Frontend (demo estática, puerto 8080)
+
+Desde la **raíz del repositorio**:
+
+```bash
+cd SO_Geograficos
+python3 -m http.server 8080
+```
+
+Abre **http://localhost:8080**. Ahí ves mapa, listado, fichas, filtros y productos. No necesita PHP ni base de datos. `Ctrl + C` lo detiene.
+
+### Backend + base de datos (puerto 8000)
+
+En **otra terminal**, desde la raíz del repositorio:
+
+```bash
+cd SO_Geograficos
+mkdir -p backend/storage/framework/views backend/storage/framework/cache/data backend/storage/framework/sessions backend/storage/logs backend/bootstrap/cache
+chmod -R 775 backend/storage backend/bootstrap/cache
+bash scripts/mysql-podman.sh
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force
+php -S 127.0.0.1:8000 -t public public/index.php
+```
+
+Abre **http://localhost:8000**. Ahí se usan la BD, las sesiones y el módulo de oportunidades. `Ctrl + C` lo detiene.
+
+> El `mkdir` evita el error `Please provide a valid cache path`. Los directorios ya vienen con un `.gitignore` en el repo, pero crearlo de nuevo no hace daño. Si `backend/.env` ya existe, omite las líneas `cp` y `php artisan key:generate` para no perder tu configuración.
+
+---
+
 ## Formas de ejecutar el proyecto
 
 Hay **dos entradas distintas**. Elige una u otra según lo que necesites:
@@ -139,6 +176,8 @@ En una **segunda terminal**, pega todo este bloque:
 
 ```bash
 cd SO_Geograficos
+mkdir -p backend/storage/framework/views backend/storage/framework/cache/data backend/storage/framework/sessions backend/storage/logs backend/bootstrap/cache
+chmod -R 775 backend/storage backend/bootstrap/cache
 bash scripts/mysql-podman.sh
 cd backend
 composer install
@@ -149,7 +188,7 @@ php artisan db:seed --force
 php -S 127.0.0.1:8000 -t public public/index.php
 ```
 
-Abre **http://localhost:8000**. Ahí la página es `backend/resources/views/inicio.blade.php` y los datos vienen de MySQL/MariaDB.
+Abre **http://localhost:8000**. Ahí la página es `backend/resources/views/inicio.blade.php` y los datos vienen de MySQL/MariaDB. El `mkdir` es obligatorio la primera vez: sin esos directorios Laravel responde `Please provide a valid cache path`.
 
 - `scripts/mysql-podman.sh` levanta el contenedor `so_geo_mysql` con MySQL 8, base `so_geograficos`, usuario `root`, contraseña vacía y puerto `3306`.
 - `php artisan db:seed --force` carga roles, categorías y los **162 establecimientos** desde `data/establecimientos.json`. Es seguro repetirlo: usa `updateOrCreate`.
@@ -180,7 +219,7 @@ CREATE DATABASE so_geograficos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 | Demo estática | http://localhost:8080 | "Mapa de Oportunidades" con 162 resultados |
 | App Laravel | http://localhost:8000 | Página principal servida por Blade |
 | API de establecimientos | http://localhost:8000/api/establishments | JSON con 162 registros |
-| API de oportunidades | http://localhost:8000/api/opportunities | `[]` si no hay oportunidades (requiere sesión iniciada) |
+| API de oportunidades | http://localhost:8000/api/opportunities | `401` sin sesión; JSON con tus oportunidades al iniciar sesión |
 | Base de datos | `127.0.0.1:3306` | Conexión aceptada |
 
 ### Endpoints disponibles en el modo B
@@ -255,6 +294,9 @@ window.APP_CONFIG = {
 
 | Problema | Solución |
 |---|---|
+| `Please provide a valid cache path` (HTTP 500) | Faltan `storage/framework/views`, `cache` y `sessions`. Ejecuta el `mkdir` y `chmod` del paso 3 (o del inicio rápido) dentro de `backend`. |
+| `Malformed UTF-8 characters, possibly incorrectly encoded` en `/api/establishments` | La columna espacial `location` es binaria; ya está ocultada en `backend/app/Models/Establishment.php` con `protected $hidden = ['location']`. |
+| `Route [login] not defined` al entrar sin sesión | Ya hay una ruta `GET /login` llamada `login` en `backend/routes/web.php` que devuelve `401` en JSON. |
 | `Address already in use` | El puerto está ocupado. Usa `8081`/`8001` y actualiza los referenciadores de Google Maps. |
 | El mapa no aparece | Revisa la clave en el `config.js` del modo que estés usando y que ambas API estén habilitadas. |
 | `Connection refused` al migrar | Verifica que `bash scripts/mysql-podman.sh` terminó correctamente. |

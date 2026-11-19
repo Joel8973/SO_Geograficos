@@ -14,6 +14,8 @@ Los comandos completos, válidos para Linux/macOS/Windows, están en el [README 
 
 ```bash
 # desde la raíz del repositorio
+mkdir -p backend/storage/framework/views backend/storage/framework/cache/data backend/storage/framework/sessions backend/storage/logs backend/bootstrap/cache
+chmod -R 775 backend/storage backend/bootstrap/cache
 bash scripts/mysql-podman.sh      # usa Podman o Docker; omite si ya tienes MySQL 8
 cd backend
 composer install
@@ -23,6 +25,8 @@ php artisan migrate --force
 php artisan db:seed --force
 php -S 127.0.0.1:8000 -t public public/index.php
 ```
+
+El `mkdir` crea los directorios que Laravel necesita para compilar Blade y guardar sesiones/caché; sin ellos aparece `Please provide a valid cache path`. Los directorios ya traen un `.gitignore` en el repo.
 
 `backend/.env` **no está versionado**: debes copiarlo en cada computadora que clone el proyecto.
 
@@ -86,4 +90,6 @@ php artisan db:seed
 - Los emprendedores solo pueden consultar sus propias oportunidades: todas las tablas de negocio llevan `user_id` y la consulta debe filtrarse por el usuario autenticado.
 - `OpportunityController` usa `firstOrCreate` por `usuario + establecimiento`, por lo que guardar dos veces el mismo comercio no crea duplicados. `Opportunity::changeStatus()` escribe en `opportunity_histories` y marca `closed_at` al llegar a `punto_venta_activo` o `no_concretada`.
 - El registro (`POST /auth/register`) asigna automáticamente el rol `emprendedor`, requerido por `POST /api/opportunities`.
+- `Establishment::$hidden` incluye `location` (WKB binario de MySQL 8) para que `GET /api/establishments` y `GET /api/opportunities` no fallen con `Malformed UTF-8 characters`.
+- Existe una ruta `GET /login` llamada `login` que devuelve `401` en JSON, para que el middleware `auth` no intente redirigir a una vista inexistente.
 - Un comercio puede estar registrado en el mapa sin haber confirmado que recibe proveedores: `has_account` y `supplier_confirmed` son independientes de `receives_suppliers`.
