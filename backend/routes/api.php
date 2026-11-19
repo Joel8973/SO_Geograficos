@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Models\Establishment;
 
-// La API de la aplicación se conectará a estas tablas en una siguiente etapa.
-Route::get('/health', function () {
-    return response()->json(['status' => 'ok']);
+Route::get('/establishments', function () {
+    return response()->json(
+        Establishment::all()
+    );
 });
