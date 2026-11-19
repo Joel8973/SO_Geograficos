@@ -188,6 +188,47 @@ async recuperarSesion() {
 },
 
 
+async cargarOportunidades() {
+  if (!this.estado.usuario) {
+    this.estado.oportunidades = [];
+    return;
+  }
+
+  const estados = {
+    por_contactar: 'Por contactar',
+    contactado: 'Contactado',
+    muestra_entregada: 'Muestra entregada',
+    en_negociacion: 'En negociación',
+    primer_pedido: 'Primer pedido',
+    punto_venta_activo: 'Punto de venta activo',
+    no_concretada: 'No concretada'
+  };
+
+  try {
+    const datos = await this.peticionLaravel('/api/opportunities');
+
+    this.estado.oportunidades = datos.map(o => ({
+      id: String(o.id),
+      establecimientoId: String(o.establishment_id),
+      usuarioId: String(o.user_id),
+      estado: estados[o.status] || 'Por contactar',
+      notas: o.private_notes || '',
+      siguienteGestion: o.next_follow_up_at
+        ? o.next_follow_up_at.substring(0, 10)
+        : '',
+      condiciones: o.agreed_conditions || '',
+      fecha: o.created_at?.substring(0, 10) || ''
+    }));
+
+    if (this.estado.vista === 'oportunidades') {
+      this.renderizarOportunidades();
+    }
+  } catch (error) {
+    console.error('Error cargando oportunidades:', error);
+    this.toast('No se pudieron cargar las oportunidades');
+  }
+},
+
 async cargarProductos() {
   if (!this.estado.usuario) {
     this.estado.productos = [];
@@ -565,6 +606,7 @@ async establecerUsuario(usuario) {
 
   // Cargar los productos del usuario desde MariaDB
   await this.cargarProductos();
+  await this.cargarOportunidades();
 },
 
 
@@ -1080,17 +1122,42 @@ async guardarProducto(id) {
      ===================================================================== */
   estados: ['Por contactar','Contactado','Muestra entregada','En negociación','Primer pedido','Punto de venta activo'],
 
-  guardarOportunidad(id) {
-    if (!this.estado.usuario || this.estado.usuario.rol !== 'emprendedor') {
-      this.toast('Inicia sesión como emprendedor para guardar oportunidades'); this.abrirLogin(); return;
+  
+async guardarOportunidad(id) {
+  if (!this.estado.usuario ||
+      this.estado.usuario.rol !== 'emprendedor') {
+    this.toast('Inicia sesión como emprendedor');
+    this.abrirLogin();
+    return;
+  }
+
+  const establecimientoId = String(id);
+
+  if (this.estado.oportunidades.some(
+    o => String(o.establecimientoId) === establecimientoId
+  )) {
+    this.toast('Esta oportunidad ya está guardada');
+    return;
+  }
+
+  try {
+    await this.peticionLaravel('/api/opportunities', 'POST', {
+      establishment_id: Number(establecimientoId)
+    });
+
+    await this.cargarOportunidades();
+
+    this.toast('Oportunidad guardada correctamente');
+
+    if (this.estado.vista === 'ficha') {
+      this.verFicha(establecimientoId);
     }
-    if (this.estado.oportunidades.find(o => o.establecimientoId === id)) { this.toast('Ya está en tus oportunidades'); return; }
-    const op = {id: uid(), establecimientoId: id, usuarioId: this.estado.usuario.id,
-      estado: 'Por contactar', notas: '', siguienteGestion: '', condiciones: '', fecha: hoy()};
-    this.estado.oportunidades.push(op); DB.guardar('oportunidades', this.estado.oportunidades);
-    this.toast('Oportunidad guardada en "Mis oportunidades"');
-    if (this.estado.vista === 'ficha') this.verFicha(id);
-  },
+  } catch (error) {
+    console.error('Error guardando oportunidad:', error);
+    this.toast(error.message || 'No se pudo guardar');
+  }
+},
+
 
   enviarPropuesta(id) {
     if (!this.estado.productos.length) { this.toast('Registra productos antes de enviar una propuesta'); this.abrirFormProducto(); return; }
@@ -1150,11 +1217,40 @@ async guardarProducto(id) {
     }).join('');
   },
 
-  cambiarEstado(id, estado) {
-    const o = this.estado.oportunidades.find(x => x.id === id);
-    o.estado = estado; DB.guardar('oportunidades', this.estado.oportunidades);
-    this.renderizarOportunidades(); this.toast('Estado actualizado: ' + estado);
-  },
+  
+async cambiarEstado(id, estado) {
+  const estados = {
+    'Por contactar': 'por_contactar',
+    'Contactado': 'contactado',
+    'Muestra entregada': 'muestra_entregada',
+    'En negociación': 'en_negociacion',
+    'Primer pedido': 'primer_pedido',
+    'Punto de venta activo': 'punto_venta_activo',
+    'No concretada': 'no_concretada'
+  };
+
+  if (!estados[estado]) {
+    this.toast('Estado no válido');
+    return;
+  }
+
+  try {
+    await this.peticionLaravel(
+      `/api/opportunities/${id}`,
+      'PATCH',
+      { status: estados[estado] }
+    );
+
+    await this.cargarOportunidades();
+
+    this.toast('Estado actualizado: ' + estado);
+  } catch (error) {
+    console.error('Error actualizando estado:', error);
+    await this.cargarOportunidades();
+    this.toast('No se pudo actualizar el estado');
+  }
+},
+
 
   editarSeguimiento(id) {
     const o = this.estado.oportunidades.find(x => x.id === id);
@@ -1166,14 +1262,45 @@ async guardarProducto(id) {
         <button class="btn btn-primary" onclick="App.guardarSeguimiento('${id}')">Guardar</button></div>`);
   },
 
-  guardarSeguimiento(id) {
-    const o = this.estado.oportunidades.find(x => x.id === id);
-    o.notas = document.getElementById('segNotas').value;
-    o.siguienteGestion = document.getElementById('segFecha').value;
-    o.condiciones = document.getElementById('segCond').value;
-    DB.guardar('oportunidades', this.estado.oportunidades);
-    this.cerrarModal(); this.renderizarOportunidades(); this.toast('Seguimiento guardado');
-  },
+  
+
+async guardarSeguimiento(id) {
+  const datos = {
+    private_notes: document.getElementById('segNotas').value,
+    next_follow_up_at: document.getElementById('segFecha').value || null,
+    agreed_conditions: document.getElementById('segCond').value
+  };
+
+  console.log('Enviando seguimiento:', {
+    id: id,
+    datos: datos
+  });
+
+  try {
+    const resultado = await this.peticionLaravel(
+      `/api/opportunities/${id}`,
+      'PATCH',
+      datos
+    );
+
+    console.log('Respuesta de Laravel:', resultado);
+
+    await this.cargarOportunidades();
+    this.cerrarModal();
+
+    if (this.estado.vista === 'oportunidades') {
+      this.renderizarOportunidades();
+    }
+
+    this.toast('Seguimiento guardado correctamente');
+
+  } catch (error) {
+    console.error('Error guardando seguimiento:', error);
+    this.toast('Error: ' + (error.message || 'No se pudo guardar'));
+  }
+},
+
+
 
   /* =====================================================================
      REGISTRO DE ESTABLECIMIENTOS Y ADMINISTRACIÓN

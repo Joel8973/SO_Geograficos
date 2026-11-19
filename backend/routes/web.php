@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OpportunityController;
 
 // Página principal
 Route::get('/', function () {
@@ -34,5 +35,21 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update']);
 
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+
+});
+// Oportunidades comerciales
+Route::middleware('auth')->prefix('api')->group(function () {
+
+    Route::get('/opportunities', [
+        OpportunityController::class, 'index'
+    ]);
+
+    Route::post('/opportunities', [
+        OpportunityController::class, 'store'
+    ]);
+
+    Route::patch('/opportunities/{opportunity}', [
+        OpportunityController::class, 'update'
+    ]);
 
 });
