@@ -15,7 +15,7 @@ Los comandos completos, válidos para Linux/macOS/Windows, están en el [README 
 ```bash
 # desde la raíz del repositorio
 mkdir -p backend/storage/framework/views backend/storage/framework/cache/data backend/storage/framework/sessions backend/storage/logs backend/bootstrap/cache
-chmod -R 775 backend/storage backend/bootstrap/cache
+chmod -R u+rwX backend/storage backend/bootstrap/cache
 bash scripts/mysql-podman.sh      # usa Podman o Docker; omite si ya tienes MySQL 8
 cd backend
 composer install
@@ -23,7 +23,7 @@ cp .env.example .env             # Windows: copy .env.example .env
 php artisan key:generate
 php artisan migrate --force
 php artisan db:seed --force
-php -S 127.0.0.1:8000 -t public public/index.php
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
 El `mkdir` crea los directorios que Laravel necesita para compilar Blade y guardar sesiones/caché; sin ellos aparece `Please provide a valid cache path`. Los directorios ya traen un `.gitignore` en el repo.

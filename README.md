@@ -26,7 +26,7 @@ En **otra terminal**, desde la raíz del repositorio:
 ```bash
 cd SO_Geograficos
 mkdir -p backend/storage/framework/views backend/storage/framework/cache/data backend/storage/framework/sessions backend/storage/logs backend/bootstrap/cache
-chmod -R 775 backend/storage backend/bootstrap/cache
+chmod -R u+rwX backend/storage backend/bootstrap/cache
 bash scripts/mysql-podman.sh
 cd backend
 composer install
@@ -34,7 +34,7 @@ cp .env.example .env
 php artisan key:generate
 php artisan migrate --force
 php artisan db:seed --force
-php -S 127.0.0.1:8000 -t public public/index.php
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
 Abre **http://localhost:8000**. Ahí se usan la BD, las sesiones y el módulo de oportunidades. `Ctrl + C` lo detiene.
@@ -177,7 +177,7 @@ En una **segunda terminal**, pega todo este bloque:
 ```bash
 cd SO_Geograficos
 mkdir -p backend/storage/framework/views backend/storage/framework/cache/data backend/storage/framework/sessions backend/storage/logs backend/bootstrap/cache
-chmod -R 775 backend/storage backend/bootstrap/cache
+chmod -R u+rwX backend/storage backend/bootstrap/cache
 bash scripts/mysql-podman.sh
 cd backend
 composer install
@@ -185,7 +185,7 @@ cp .env.example .env
 php artisan key:generate
 php artisan migrate --force
 php artisan db:seed --force
-php -S 127.0.0.1:8000 -t public public/index.php
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
 Abre **http://localhost:8000**. Ahí la página es `backend/resources/views/inicio.blade.php` y los datos vienen de MySQL/MariaDB. El `mkdir` es obligatorio la primera vez: sin esos directorios Laravel responde `Please provide a valid cache path`.
@@ -294,6 +294,7 @@ window.APP_CONFIG = {
 
 | Problema | Solución |
 |---|---|
+| La página se ve sin estilos (HTML plano) | Usa `php artisan serve`, no `php -S ... public/index.php`: con ese comando el CSS/JS también pasan por Laravel y devuelven HTML. Recarga con `Ctrl + F5`. |
 | `Please provide a valid cache path` (HTTP 500) | Faltan `storage/framework/views`, `cache` y `sessions`. Ejecuta el `mkdir` y `chmod` del paso 3 (o del inicio rápido) dentro de `backend`. |
 | `Malformed UTF-8 characters, possibly incorrectly encoded` en `/api/establishments` | La columna espacial `location` es binaria; ya está ocultada en `backend/app/Models/Establishment.php` con `protected $hidden = ['location']`. |
 | `Route [login] not defined` al entrar sin sesión | Ya hay una ruta `GET /login` llamada `login` en `backend/routes/web.php` que devuelve `401` en JSON. |
