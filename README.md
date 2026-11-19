@@ -29,6 +29,20 @@ python3 -m http.server 8080
 
 También funciona abriendo `index.html` directamente. Para instalarla como PWA, usar el servidor local y la opción “Agregar a pantalla de inicio” del navegador.
 
+## 💻 Ejecutar todo en Visual Studio Code
+
+1. Abre la carpeta del repositorio: `File > Open Folder…` → `Documentos/GitHub/SO_Geograficos`.
+2. Acepta las extensiones recomendadas (Live Server, Intelephense, Laravel).
+3. **Frontend (PWA):** `Terminal > Run Task…` → **PWA: servir en localhost:8080** y abre <http://localhost:8080>. También puedes clic derecho en `index.html` → *Open with Live Server* (puerto 5500).
+4. **Backend (requiere PHP 8.2+ y Composer instalados):**
+   - instala PHP/Composer (en Fedora: `sudo dnf install php-cli php-mbstring php-xml php-mysqlnd php-zip php-curl composer`);
+   - `Terminal > Run Task…` → **SETUP BACKEND** (inicia MySQL 8 con Podman, instala dependencias, genera `.env`/`APP_KEY` y ejecuta las migraciones);
+   - luego **Backend: servir API en localhost:8000** → <http://localhost:8000/api/health> y <http://localhost:8000/>. La tarea usa `php -S … -t public public/index.php` (equivalente a `artisan serve`, pero funciona también con el PHP portable instalado en `~/.local`).
+
+Tareas disponibles en `.vscode/tasks.json`. El script `scripts/mysql-podman.sh` levanta MySQL 8 sin contraseña para desarrollo (acepta el `.env.example` incluido). Si ya tienes MySQL instalado, omite esa tarea y ajusta `backend/.env`.
+
+> La PWA funciona de forma independiente con `localStorage`. La API Laravel está lista para recibir la conexión, pero **el frontend aún no consume el backend** (ese es el siguiente paso de integración).
+
 ## 🗂️ Estructura
 
 - `index.html` — interfaz y secciones
@@ -47,7 +61,7 @@ Los datos provienen de `Lacteos_Datos_Unificados_Consolidado (1).xlsx` (162 esta
 
 ## 🗄️ Backend Laravel (base de datos)
 
-La carpeta [`backend/`](backend/) contiene el proyecto Laravel 11 con **22 migraciones**, modelos Eloquent y enums para la base de datos MySQL (incluye columna espacial `POINT` para búsquedas por distancia). No incluye seeder, según lo solicitado.
+La carpeta [`backend/`](backend/) contiene el proyecto Laravel 12 con **22 migraciones**, modelos Eloquent y enums para la base de datos MySQL (incluye columna espacial `POINT` para búsquedas por distancia). No incluye seeder, según lo solicitado.
 
 ```bash
 cd backend

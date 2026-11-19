@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "MySQL 8: iniciar (Podman)",
+      "type": "shell",
+      "command": "bash scripts/mysql-podman.sh",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "PWA: servir en localhost:8080",
+      "type": "shell",
+      "command": "python3 -m http.server 8080",
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Backend: composer install",
+      "type": "shell",
+      "command": "composer install",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Backend: copiar .env y generar APP_KEY",
+      "type": "shell",
+      "command": "test -f .env || cp .env.example .env; php artisan key:generate",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Backend: ejecutar migraciones",
+      "type": "shell",
+      "command": "php artisan migrate",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Backend: servir API en localhost:8000",
+      "type": "shell",
+      "command": "php -S 127.0.0.1:8000 -t public public/index.php",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "SETUP BACKEND (composer + env + migrate)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "MySQL 8: iniciar (Podman)",
+        "Backend: composer install",
+        "Backend: copiar .env y generar APP_KEY",
+        "Backend: ejecutar migraciones"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

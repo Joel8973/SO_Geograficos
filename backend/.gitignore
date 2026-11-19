@@ -9,6 +9,8 @@
 /storage/framework/sessions
 /storage/framework/views
 /storage/logs
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitkeep
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml

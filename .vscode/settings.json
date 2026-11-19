@@ -1,0 +1,11 @@
+{
+  "liveServer.settings.port": 5500,
+  "files.associations": {
+    "*.webmanifest": "json"
+  },
+  "php.validate.enable": true,
+  "files.exclude": {
+    "**/backend/vendor": true,
+    "**/node_modules": true
+  }
+}
