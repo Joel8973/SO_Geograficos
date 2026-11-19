@@ -53,6 +53,9 @@ php artisan db:seed
 | `POST /auth/logout` | Cierre de sesión |
 | `GET|POST /api/products` | Listar / crear productos del usuario |
 | `PUT|DELETE /api/products/{id}` | Editar / eliminar producto |
+| `GET /api/opportunities` | Mis oportunidades (requiere sesión) |
+| `POST /api/opportunities` | Guardar comercio como oportunidad (rol `emprendedor`, estado inicial `por_contactar`) |
+| `PATCH /api/opportunities/{id}` | Actualizar estado, `private_notes`, `next_follow_up_at` y `agreed_conditions` |
 
 ## Tablas creadas
 
@@ -81,4 +84,6 @@ php artisan db:seed
 
 - En MySQL 8, `establishments.location` es una columna **generada** `POINT NOT NULL SRID 4326` derivada de `latitude`/`longitude`, con índice `SPATIAL`. En MariaDB esa migración se omite y se usan solo `latitude`/`longitude`.
 - Los emprendedores solo pueden consultar sus propias oportunidades: todas las tablas de negocio llevan `user_id` y la consulta debe filtrarse por el usuario autenticado.
+- `OpportunityController` usa `firstOrCreate` por `usuario + establecimiento`, por lo que guardar dos veces el mismo comercio no crea duplicados. `Opportunity::changeStatus()` escribe en `opportunity_histories` y marca `closed_at` al llegar a `punto_venta_activo` o `no_concretada`.
+- El registro (`POST /auth/register`) asigna automáticamente el rol `emprendedor`, requerido por `POST /api/opportunities`.
 - Un comercio puede estar registrado en el mapa sin haber confirmado que recibe proveedores: `has_account` y `supplier_confirmed` son independientes de `receives_suppliers`.
