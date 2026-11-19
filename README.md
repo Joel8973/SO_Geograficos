@@ -45,6 +45,21 @@ Los datos provienen de `Lacteos_Datos_Unificados_Consolidado (1).xlsx` (162 esta
 
 > Nota: la compatibilidad mostrada entre producto y comercio es **orientativa y no garantiza aceptación**, tal como exige el documento.
 
+## 🗄️ Backend Laravel (base de datos)
+
+La carpeta [`backend/`](backend/) contiene el proyecto Laravel 11 con **22 migraciones**, modelos Eloquent y enums para la base de datos MySQL (incluye columna espacial `POINT` para búsquedas por distancia). No incluye seeder, según lo solicitado.
+
+```bash
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+# crear la BD so_geograficos en MySQL 8+
+php artisan migrate
+```
+
+Ver [`backend/README.md`](backend/README.md) y [`DOCUMENTACION.md`](DOCUMENTACION.md) para el detalle de tablas.
+
 ## 🔐 Privacidad
 
 La geolocalización y la publicación de contactos se usan con fines de gestión comercial. La aplicación solicita autorización al usar el GPS y permite ingresar la ubicación manualmente si no se activa. Cada emprendedor solo ve sus propias propuestas, notas y negociaciones (filtradas por `usuarioId`).

@@ -15,7 +15,7 @@ Aplicación web de geolocalización que conecta emprendedores con tiendas de bar
 
 - **Frontend**: HTML5 + CSS3 + JavaScript (ES6), sin frameworks de pago.
 - **Mapas**: Leaflet 1.9.4 + teselas de OpenStreetMap (sin costo por uso razonable).
-- **Persistencia**: `localStorage` del navegador (versión 1). En producción se recomienda migrar a una base de datos (PostgreSQL + PostGIS) y autenticación real (JWT/OAuth).
+- **Persistencia**: la PWA usa `localStorage` para funcionar sin servidor. La base de datos relacional definitiva está en [`backend/`](backend/) (Laravel 11 + MySQL 8 con columna espacial `POINT` SRID 4326), implementada mediante 22 migraciones y modelos Eloquent. Autenticación real (Sanctum/JWT) queda para la integración API.
 - **Instalable**: PWA con `manifest.webmanifest` y `service worker` (`sw.js`).
 - **Datos iniciales**: 162 establecimientos del cantón Latacunga (Cotopaxi) convertidos desde el archivo Excel a `data/establecimientos.json` y `js/data.js`.
 
