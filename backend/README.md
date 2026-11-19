@@ -8,16 +8,24 @@ Base de datos relacional con migraciones para la aplicación de geolocalización
 - Composer 2+
 - **MySQL 8.0+** (necesario para la columna espacial `POINT` con SRID 4326)
 
-## Instalación
+## Instalación (después de clonar)
+
+Los comandos completos, válidos para Linux/macOS/Windows, están en el [README principal](../README.md). Resumen:
 
 ```bash
+# desde la raíz del repositorio
+bash scripts/mysql-podman.sh      # usa Podman o Docker; omite si ya tienes MySQL 8
 cd backend
 composer install
-cp .env.example .env
+cp .env.example .env             # Windows: copy .env.example .env
 php artisan key:generate
+php artisan migrate --force
+php -S 127.0.0.1:8000 -t public public/index.php
 ```
 
-Crear la base de datos:
+`backend/.env` **no está versionado**: debes copiarlo en cada computadora que clone el proyecto.
+
+Crear la base de datos manualmente (solo si no usas el script):
 
 ```sql
 CREATE DATABASE so_geograficos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
