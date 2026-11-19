@@ -4,14 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#103d32">
-  <meta name="description" content="Mapa de oportunidades: conecta emprendedores con tiendas, minimercados y supermercados.">
+  <meta name="theme-color" content="#073b30">
+  <meta name="description" content="Mapa de Oportunidades conecta emprendedores con establecimientos comerciales en Latacunga.">
   <title>Mapa de Oportunidades | Latacunga</title>
+
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/styles.css">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
@@ -20,28 +23,28 @@
 
   <!-- BARRA SUPERIOR -->
   <header class="topbar">
-    <div class="topbar-left">
+    <div class="brand-area">
       <button id="btnMenu" class="icon-btn menu-button" aria-label="Abrir menú">
         <i class="fa-solid fa-bars"></i>
       </button>
 
-      <a class="brand" href="#" onclick="App.mostrar('mapa'); return false;">
+      <a href="#" class="brand" onclick="App.mostrar('mapa'); return false;">
         <span class="brand-icon"><i class="fa-solid fa-location-dot"></i></span>
         <span class="brand-text">
           <strong>Mapa de <span>Oportunidades</span></strong>
-          <small>PLATAFORMA COMERCIAL · LATACUNGA</small>
+          <small>PLATAFORMA COMERCIAL</small>
         </span>
       </a>
     </div>
 
-    <nav class="top-navigation" aria-label="Navegación principal">
+    <nav class="top-navigation">
       <button data-nav="mapa" class="activo">
         <i class="fa-solid fa-map-location-dot"></i>
-        <span>Explorar mapa</span>
+        <span>Explorar</span>
       </button>
       <button data-nav="productos">
         <i class="fa-solid fa-box-open"></i>
-        <span>Mis productos</span>
+        <span>Productos</span>
       </button>
       <button data-nav="oportunidades">
         <i class="fa-solid fa-handshake"></i>
@@ -57,7 +60,6 @@
       <div class="location-indicator">
         <span class="location-dot"></span>
         <span>Latacunga, Ecuador</span>
-        <i class="fa-solid fa-chevron-down"></i>
       </div>
 
       <button id="btnNotificaciones" class="icon-btn notification-button" aria-label="Notificaciones">
@@ -65,31 +67,37 @@
         <span class="notification-badge" id="notificationCount">3</span>
       </button>
 
-      <div class="profile-wrapper">
-        <button id="btnPerfil" class="profile-button" aria-label="Mi perfil">
-          <span class="profile-avatar">U</span>
-          <span class="profile-info">
-            <strong>Mi cuenta</strong>
-            <small>Emprendedor</small>
-          </span>
-          <i class="fa-solid fa-chevron-down"></i>
-        </button>
-      </div>
+      <button id="btnPerfil" class="profile-button" aria-label="Mi perfil">
+        <span class="profile-avatar">U</span>
+        <span class="profile-info">
+          <strong>Mi cuenta</strong>
+          <small>Emprendedor</small>
+        </span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
     </div>
   </header>
 
-  <!-- CONTENIDO PRINCIPAL -->
+  <!-- CONTENIDO -->
   <main id="main">
 
     <!-- MAPA -->
     <section id="view-mapa" class="view active">
 
       <div class="welcome-section">
-        <div>
-          <span class="eyebrow"><i class="fa-solid fa-compass"></i> DESCUBRE NUEVAS OPORTUNIDADES</span>
-          <h1>Conecta tu negocio con <span>nuevos clientes.</span></h1>
-          <p>Encuentra establecimientos comerciales y descubre dónde puedes ofrecer tus productos.</p>
+        <div class="welcome-content">
+          <span class="eyebrow">
+            <i class="fa-solid fa-compass"></i>
+            DESCUBRE NUEVAS OPORTUNIDADES
+          </span>
+
+          <h1>Haz crecer tu negocio.<br>
+            <span>Conecta con nuevos clientes.</span>
+          </h1>
+
+          <p>Encuentra tiendas, minimercados y supermercados donde puedes ofrecer tus productos.</p>
         </div>
+
         <div class="welcome-decoration">
           <i class="fa-solid fa-location-crosshairs"></i>
         </div>
@@ -100,9 +108,10 @@
         <div class="search-input-wrapper">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input id="busqueda" type="search"
-            placeholder="Buscar tiendas, supermercados o sectores..."
+            placeholder="Buscar por nombre, sector o establecimiento..."
             aria-label="Buscar establecimientos">
         </div>
+
         <button id="btnUbicacion" class="btn-location">
           <i class="fa-solid fa-crosshairs"></i>
           Mi ubicación
@@ -110,28 +119,35 @@
       </div>
 
       <!-- FILTROS -->
-      <div class="filter-section">
+      <section class="filter-section">
         <div class="filter-heading">
           <div>
-            <h3>Explora establecimientos</h3>
-            <p>Encuentra el lugar ideal para ofrecer tus productos.</p>
+            <h3>Explorar establecimientos</h3>
+            <p>Encuentra negocios según tus necesidades.</p>
           </div>
-          <span class="filter-label"><i class="fa-solid fa-sliders"></i> FILTRAR RESULTADOS</span>
+
+          <span class="filter-label">
+            <i class="fa-solid fa-sliders"></i> FILTROS
+          </span>
         </div>
 
         <div id="filtros" class="filtros">
           <button class="chip activo" data-filtro="todos">
             <i class="fa-solid fa-layer-group"></i> Todos
           </button>
+
           <button class="chip" data-filtro="Tienda">
             <i class="fa-solid fa-store"></i> Tiendas
           </button>
+
           <button class="chip" data-filtro="Minimercado">
             <i class="fa-solid fa-shop"></i> Minimercados
           </button>
+
           <button class="chip" data-filtro="Supermercado">
             <i class="fa-solid fa-basket-shopping"></i> Supermercados
           </button>
+
           <button class="chip" data-filtro="recibe">
             <i class="fa-solid fa-circle-check"></i> Recibe propuestas
           </button>
@@ -148,28 +164,58 @@
             <option value="25">Hasta 25 km</option>
           </select>
         </div>
-      </div>
+      </section>
 
-      <!-- RESULTADOS Y MAPA -->
+      <!-- RESULTADOS -->
       <div class="results-heading">
         <div>
           <h3>Establecimientos disponibles</h3>
-          <p>Explora los negocios registrados en la plataforma.</p>
+          <p>Descubre posibles puntos de venta para tus productos.</p>
         </div>
 
         <div class="vista-toggle">
           <button id="btnVerMapa" class="activo">
             <i class="fa-solid fa-map"></i> Mapa
           </button>
+
           <button id="btnVerLista">
             <i class="fa-solid fa-list"></i>
-            Listado <span id="numResultados">0</span>
+            Listado (<span id="numResultados">0</span>)
           </button>
         </div>
       </div>
 
-      <div id="mapaContainer" class="mapa-container">
-        <div id="map"></div>
+      <div class="map-layout">
+        <div class="map-information">
+          <div class="map-info-title">
+            <span class="map-info-icon"><i class="fa-solid fa-map-location-dot"></i></span>
+            <div>
+              <strong>Mapa comercial</strong>
+              <small>Latacunga · Cotopaxi</small>
+            </div>
+          </div>
+
+          <div class="map-tip">
+            <i class="fa-solid fa-lightbulb"></i>
+            <p>Selecciona un establecimiento en el mapa para consultar su información y condiciones comerciales.</p>
+          </div>
+
+          <div class="map-legend">
+            <strong>TIPOS DE ESTABLECIMIENTOS</strong>
+            <span><i class="legend-dot tienda"></i> Tiendas</span>
+            <span><i class="legend-dot mini"></i> Minimercados</span>
+            <span><i class="legend-dot super"></i> Supermercados</span>
+          </div>
+
+          <div class="map-bottom-note">
+            <i class="fa-solid fa-shield-halved"></i>
+            Información de establecimientos registrados.
+          </div>
+        </div>
+
+        <div id="mapaContainer" class="mapa-container">
+          <div id="map"></div>
+        </div>
       </div>
 
       <div id="listaContainer" class="lista-container hidden"></div>
@@ -191,6 +237,7 @@
           <h1>Mis productos</h1>
           <p>Administra tu catálogo y presenta tus productos a nuevos establecimientos.</p>
         </div>
+
         <button class="btn btn-primary" onclick="App.abrirFormProducto()">
           <i class="fa-solid fa-plus"></i> Nuevo producto
         </button>
@@ -202,6 +249,7 @@
         <button class="btn" onclick="App.compartirCatalogo()">
           <i class="fa-solid fa-share-nodes"></i> Compartir catálogo
         </button>
+
         <button class="btn" onclick="App.descargarCatalogoPDF()">
           <i class="fa-solid fa-file-pdf"></i> Descargar ficha PDF
         </button>
@@ -217,21 +265,23 @@
           <p>Organiza tus contactos y da seguimiento a tus posibles clientes.</p>
         </div>
       </div>
+
       <div id="estadisticas" class="estadisticas"></div>
       <div id="kanban" class="kanban"></div>
       <div id="listaOportunidades"></div>
     </section>
 
-    <!-- ADMINISTRACIÓN -->
+    <!-- ADMIN -->
     <section id="view-admin" class="view">
       <div class="section-banner">
         <div>
-          <span class="eyebrow">CONTROL DE PLATAFORMA</span>
+          <span class="eyebrow">CONTROL DE LA PLATAFORMA</span>
           <h1>Panel administrativo</h1>
           <p>Gestiona establecimientos, usuarios y registros de la plataforma.</p>
         </div>
       </div>
-      <div class="admin-grid" id="adminGrid"></div>
+
+      <div id="adminGrid" class="admin-grid"></div>
       <div id="adminContenido"></div>
     </section>
 
@@ -244,27 +294,34 @@
           <p>Consulta la información y el crecimiento de la plataforma.</p>
         </div>
       </div>
+
       <div id="reportesContenido"></div>
     </section>
 
   </main>
 
-  <!-- NAVEGACIÓN INFERIOR -->
-  <nav class="bottom-nav" aria-label="Navegación móvil">
+  <!-- NAVEGACIÓN MÓVIL -->
+  <nav class="bottom-nav">
     <button data-nav="mapa" class="activo">
-      <i class="fa-solid fa-map-location-dot"></i><span>Mapa</span>
+      <i class="fa-solid fa-map-location-dot"></i>
+      <span>Mapa</span>
     </button>
+
     <button data-nav="productos">
-      <i class="fa-solid fa-box-open"></i><span>Productos</span>
+      <i class="fa-solid fa-box-open"></i>
+      <span>Productos</span>
     </button>
+
     <button data-nav="oportunidades">
-      <i class="fa-solid fa-handshake"></i><span>Oportunidades</span>
+      <i class="fa-solid fa-handshake"></i>
+      <span>Oportunidades</span>
     </button>
+
     <button data-nav="admin" class="nav-admin">
-      <i class="fa-solid fa-gear"></i><span>Admin</span>
+      <i class="fa-solid fa-gear"></i>
+      <span>Admin</span>
     </button>
   </nav>
-
 </div>
 
 <!-- NOTIFICACIONES -->
@@ -276,17 +333,32 @@
     </div>
     <button id="markNotifications" class="text-action">Marcar leídas</button>
   </div>
+
   <div class="notification-item">
     <span class="notification-icon"><i class="fa-solid fa-store"></i></span>
-    <div><strong>Bienvenido</strong><p>Explora los establecimientos disponibles.</p><small>Mensaje de ejemplo</small></div>
+    <div>
+      <strong>Bienvenido</strong>
+      <p>Explora los establecimientos disponibles.</p>
+      <small>Mensaje de ejemplo</small>
+    </div>
   </div>
+
   <div class="notification-item">
     <span class="notification-icon"><i class="fa-solid fa-box"></i></span>
-    <div><strong>Tu catálogo</strong><p>Registra productos para encontrar oportunidades.</p><small>Mensaje de ejemplo</small></div>
+    <div>
+      <strong>Tu catálogo</strong>
+      <p>Registra productos para encontrar oportunidades.</p>
+      <small>Mensaje de ejemplo</small>
+    </div>
   </div>
+
   <div class="notification-item">
     <span class="notification-icon"><i class="fa-solid fa-handshake"></i></span>
-    <div><strong>Conecta y crece</strong><p>Contacta con nuevos establecimientos.</p><small>Mensaje de ejemplo</small></div>
+    <div>
+      <strong>Conecta y crece</strong>
+      <p>Contacta con nuevos establecimientos.</p>
+      <small>Mensaje de ejemplo</small>
+    </div>
   </div>
 </div>
 
@@ -294,11 +366,23 @@
 <div id="profilePanel" class="floating-panel profile-panel hidden">
   <div class="profile-panel-user">
     <span class="profile-avatar large">U</span>
-    <div><strong>Mi cuenta</strong><small>Emprendedor</small></div>
+    <div>
+      <strong>Mi cuenta</strong>
+      <small>Emprendedor</small>
+    </div>
   </div>
-  <button onclick="App.mostrar('productos')"><i class="fa-solid fa-box"></i> Mis productos</button>
-  <button onclick="App.mostrar('oportunidades')"><i class="fa-solid fa-handshake"></i> Mis oportunidades</button>
-  <button onclick="App.mostrar('reportes')"><i class="fa-solid fa-chart-pie"></i> Reportes</button>
+
+  <button onclick="App.mostrar('productos')">
+    <i class="fa-solid fa-box"></i> Mis productos
+  </button>
+
+  <button onclick="App.mostrar('oportunidades')">
+    <i class="fa-solid fa-handshake"></i> Mis oportunidades
+  </button>
+
+  <button onclick="App.mostrar('reportes')">
+    <i class="fa-solid fa-chart-pie"></i> Reportes
+  </button>
 </div>
 
 <!-- MODAL -->
@@ -311,63 +395,58 @@
 
 <div id="toast" class="toast"></div>
 
+<!-- SCRIPTS -->
 <script src="js/config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
 
-<!-- INTERACCIONES DE LA CABECERA -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const btnNotificaciones = document.getElementById("btnNotificaciones");
-  const btnPerfil = document.getElementById("btnPerfil");
-  const notificationPanel = document.getElementById("notificationPanel");
-  const profilePanel = document.getElementById("profilePanel");
-  const markNotifications = document.getElementById("markNotifications");
-  const notificationCount = document.getElementById("notificationCount");
+  const notificaciones = document.getElementById("btnNotificaciones");
+  const perfil = document.getElementById("btnPerfil");
+  const panelNotificaciones = document.getElementById("notificationPanel");
+  const panelPerfil = document.getElementById("profilePanel");
+  const contador = document.getElementById("notificationCount");
 
   function cerrarPaneles() {
-    notificationPanel?.classList.add("hidden");
-    profilePanel?.classList.add("hidden");
+    panelNotificaciones.classList.add("hidden");
+    panelPerfil.classList.add("hidden");
   }
 
-  btnNotificaciones?.addEventListener("click", (event) => {
-    event.stopPropagation();
-    const abrir = notificationPanel.classList.contains("hidden");
+  notificaciones.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const abrir = panelNotificaciones.classList.contains("hidden");
     cerrarPaneles();
-    if (abrir) notificationPanel.classList.remove("hidden");
+    if (abrir) panelNotificaciones.classList.remove("hidden");
   });
 
-  btnPerfil?.addEventListener("click", (event) => {
-    event.stopPropagation();
-    const abrir = profilePanel.classList.contains("hidden");
+  perfil.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const abrir = panelPerfil.classList.contains("hidden");
     cerrarPaneles();
-    if (abrir) profilePanel.classList.remove("hidden");
+    if (abrir) panelPerfil.classList.remove("hidden");
   });
 
-  notificationPanel?.addEventListener("click", event => event.stopPropagation());
-  profilePanel?.addEventListener("click", event => event.stopPropagation());
+  panelNotificaciones.addEventListener("click", e => e.stopPropagation());
+  panelPerfil.addEventListener("click", e => e.stopPropagation());
 
   document.addEventListener("click", cerrarPaneles);
 
-  markNotifications?.addEventListener("click", () => {
-    document.querySelectorAll(".notification-item").forEach(item => {
-      item.classList.add("read");
-    });
-    if (notificationCount) {
-      notificationCount.textContent = "0";
-      notificationCount.classList.add("hidden");
-    }
+  document.getElementById("markNotifications").addEventListener("click", () => {
+    document.querySelectorAll(".notification-item").forEach(item => item.classList.add("read"));
+    contador.textContent = "0";
+    contador.classList.add("hidden");
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") cerrarPaneles();
   });
 
   document.querySelectorAll(".top-navigation [data-nav]").forEach(button => {
     button.addEventListener("click", () => {
-      document.querySelectorAll(".top-navigation [data-nav]").forEach(item => item.classList.remove("activo"));
+      document.querySelectorAll(".top-navigation [data-nav]").forEach(b => b.classList.remove("activo"));
       button.classList.add("activo");
     });
-  });
-
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") cerrarPaneles();
   });
 });
 </script>
