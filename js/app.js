@@ -97,7 +97,6 @@ const App = {
     document.querySelectorAll('.bottom-nav button').forEach(b => {
       b.addEventListener('click', () => this.mostrar(b.dataset.nav));
     });
-    document.getElementById('btnPerfil').addEventListener('click', () => this.abrirPerfil());
     document.getElementById('btnMenu').addEventListener('click', () => this.abrirMenu());
     document.getElementById('modal').addEventListener('click', e => {
       if (e.target.id === 'modal') this.cerrarModal();
