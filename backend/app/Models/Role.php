@@ -18,7 +18,7 @@ class Role extends Model
         return $this->belongsToMany(User::class, 'role_user');
     }
 
-    public function is(UserRole $role): bool
+   public function hasRoleType(UserRole $role): bool
     {
         return $this->name === $role->value;
     }

@@ -15,6 +15,6 @@
    por eso es importante restringirla por dominio en Google Cloud.
    ========================================================================= */
 window.APP_CONFIG = {
-  GOOGLE_MAPS_API_KEY: 'TU_API_KEY_AQUI',
+  GOOGLE_MAPS_API_KEY: 'AIzaSyDZ8py-O1HnJxGjxLI2F3IZNrSqmeBBa8I',
   mapaInicialZoom: 11
 };
