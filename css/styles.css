@@ -48,8 +48,15 @@ button{cursor:pointer}
 .marker-otro{background:var(--otro)}
 .marker-div{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.4);display:grid;place-items:center}
 .marker-div span{transform:rotate(45deg);font-size:12px;color:#fff}
-.leaflet-popup-content-wrapper{border-radius:12px}
-.leaflet-popup-content{margin:10px 12px;font-size:13px;line-height:1.5}
+/* Ventanas de información de Google Maps */
+.gm-style-iw-c{border-radius:12px !important}
+.gm-style-iw-d{font-size:13px;line-height:1.5;padding:4px 2px !important}
+.mapa-aviso-api{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#f4f7f5;color:#233}
+.mapa-aviso-api-icono{font-size:42px;margin-bottom:8px}
+.mapa-aviso-api h3{margin:0 0 8px;color:var(--verde);font-size:18px}
+.mapa-aviso-api p{font-size:13px;line-height:1.6;max-width:420px;margin:4px 0}
+.mapa-aviso-api-paso{color:var(--muted)}
+.mapa-aviso-api code{background:#e3ece7;padding:1px 4px;border-radius:4px}
 .popup-titulo{font-weight:bold;color:var(--verde);font-size:14px;margin-bottom:3px}
 .popup-tipo{font-size:11px;color:var(--muted)}
 .popup-btn{display:inline-block;margin-top:8px;background:var(--verde);color:#fff;padding:6px 12px;border-radius:8px;text-decoration:none;font-size:12px}

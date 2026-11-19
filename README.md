@@ -7,7 +7,7 @@ Aplicación web progresiva (PWA) de geolocalización que conecta **emprendedores
 | Requisito del documento | Implementado en |
 |---|---|
 | 1. Tipos de usuarios (emprendedor, comercio, administrador) | Menú ☰ → Iniciar sesión (control por roles) |
-| 2. Mapa de oportunidades con marcadores, búsqueda, filtros, mapa/listado, ficha y “Cómo llegar” | `index.html` + `js/app.js` (Leaflet + OpenStreetMap) |
+| 2. Mapa de oportunidades con marcadores, búsqueda, filtros, mapa/listado, ficha y “Cómo llegar” | `index.html` + `js/app.js` (**Google Maps JavaScript API**, clave en `js/config.js`) |
 | 3. Ficha completa del establecimiento (datos, categorías, productos buscados, recepción, contacto, horario, requisitos, condiciones, verificación, decisión en supermercados) | `App.verFicha()` |
 | 4. Perfil del emprendedor y catálogo (foto, categoría, precios, mínimo, capacidad, vida útil, zonas, documentos, compartir y PDF) | Vista **Productos** |
 | 5. Vinculación producto ↔ establecimiento con explicación de coincidencia y aviso de no garantía | Botón **Buscar dónde ofrecerlo** |
@@ -19,7 +19,7 @@ Aplicación web progresiva (PWA) de geolocalización que conecta **emprendedores
 
 ## ▶️ Ejecutar
 
-No requiere instalación de dependencias de pago.
+No requiere instalar dependencias. El mapa usa **Google Maps JavaScript API**, así que necesitas una API Key (configuración gratuita; consulta los límites actuales de Google).
 
 ```bash
 cd SO_Geograficos
@@ -28,6 +28,16 @@ python3 -m http.server 8080
 ```
 
 También funciona abriendo `index.html` directamente. Para instalarla como PWA, usar el servidor local y la opción “Agregar a pantalla de inicio” del navegador.
+
+### 🔑 Configurar Google Maps API
+
+1. Entra a <https://console.cloud.google.com/google/maps-apis/> y crea/elige un proyecto.
+2. Habilita **Maps JavaScript API** y **Geocoding API** (esta última para buscar una dirección escrita).
+3. En *Credenciales* crea una **Clave de API** y restríngela por **Referenciadores HTTP**: `http://localhost:8080/*` y el dominio donde publiques.
+4. Abre `js/config.js` y reemplaza `TU_API_KEY_AQUI` por tu clave.
+5. Recarga con `Ctrl+F5`. Si la clave falta o falla, la app muestra un aviso en el mapa pero el listado y las fichas siguen funcionando.
+
+> La clave se usa en el navegador (es habitual en Google Maps JS); por eso debe estar restringida por dominio. Nunca la subas a un repositorio público si no tiene restricciones.
 
 ## 💻 Ejecutar todo en Visual Studio Code
 
@@ -47,8 +57,9 @@ Tareas disponibles en `.vscode/tasks.json`. El script `scripts/mysql-podman.sh` 
 
 - `index.html` — interfaz y secciones
 - `css/styles.css` — diseño adaptable a celular
+- `js/config.js` — clave de **Google Maps API** (configuración)
 - `js/data.js` — **162 establecimientos** del cantón Latacunga extraídos del Excel
-- `js/app.js` — toda la lógica de negocio
+- `js/app.js` — toda la lógica de negocio y del mapa Google Maps
 - `data/establecimientos.json` — fuente de datos original convertida a JSON
 - `manifest.webmanifest`, `sw.js`, `icon.svg` — PWA
 - `DOCUMENTACION.md` — documentación, arquitectura, costos y propiedad

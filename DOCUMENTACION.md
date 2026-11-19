@@ -14,7 +14,7 @@ Aplicación web de geolocalización que conecta emprendedores con tiendas de bar
 ## 3. Arquitectura
 
 - **Frontend**: HTML5 + CSS3 + JavaScript (ES6), sin frameworks de pago.
-- **Mapas**: Leaflet 1.9.4 + teselas de OpenStreetMap (sin costo por uso razonable).
+- **Mapas**: **Google Maps JavaScript API** (mapa, marcadores, InfoWindows, geolocalización y búsqueda de direcciones con Geocoding API). La clave se configura en `js/config.js` y debe restringirse por dominio en Google Cloud. Sin clave, la PWA muestra un aviso pero el listado y las fichas siguen funcionando.
 - **Persistencia**: la PWA usa `localStorage` para funcionar sin servidor. La base de datos relacional definitiva está en [`backend/`](backend/) (Laravel 12 + MySQL 8 con columna espacial `POINT` SRID 4326), implementada mediante 22 migraciones y modelos Eloquent. Autenticación real (Sanctum/JWT) queda para la integración API.
 - **Instalable**: PWA con `manifest.webmanifest` y `service worker` (`sw.js`).
 - **Datos iniciales**: 162 establecimientos del cantón Latacunga (Cotopaxi) convertidos desde el archivo Excel a `data/establecimientos.json` y `js/data.js`.
@@ -50,7 +50,7 @@ Número de emprendedores que consiguen un **primer pedido** y mantienen **puntos
 |---|---|
 | Acceso | Web adaptable a celular, instalable como PWA |
 | Facilidad de uso | Formularios cortos, etiquetas claras y navegación inferior fija |
-| Geolocalización | Latitud/longitud guardadas; ubicación manual si no se activa el GPS |
+| Geolocalización | Google Maps + GPS del navegador; dirección escrita geocodificada y latitud/longitud manual si no se activa el GPS |
 | Seguridad | Roles de acceso; filtrado de oportunidades por `usuarioId` |
 | Privacidad | Autorización del navegador para GPS; contactos con fines comerciales |
 | Administración | Panel con establecimientos, usuarios, categorías, reportes, duplicados y ubicaciones |
@@ -59,17 +59,17 @@ Número de emprendedores que consiguen un **primer pedido** y mantienen **puntos
 
 ## 7. Costos estimados (antes de contratar)
 
-> Los siguientes valores son referenciales y deben cotizarse con proveedores locales. OpenStreetMap y Leaflet son de uso libre.
+> Los siguientes valores son referenciales y deben cotizarse con proveedores locales. Google Maps ofrece un nivel gratuito/mensual de uso; para producción revisa las tarifas vigentes y configura límites y restricciones de clave.
 
 | Servicio | Alternativa sin costo | Alternativa gestionada (referencia mensual) |
 |---|---|---|
 | Alojamiento | GitHub Pages / Netlify Free | VPS o hosting compartido: USD 5–15 |
-| Mapas | Leaflet + OpenStreetMap (USD 0) | Proveedor comercial con SLA: USD 0–50 según volumen |
+| Mapas | Google Maps API (cuota gratuita según tarifas vigentes) | Google Maps API con SLA / volumen alto: USD 0–50 según uso |
 | Almacenamiento | localStorage / SQLite local | Base de datos administrada: USD 10–25 |
 | Dominio y HTTPS | Dominio gratuito de GitHub Pages | Dominio propio: USD 1–2 |
 | Mantenimiento | — | Actualización y soporte: USD 50–150 (según alcance) |
 
-**Recomendación:** iniciar con la alternativa sin costo (GitHub Pages + OpenStreetMap) y migrar a base de datos gestionada cuando se requiera multiusuario real con cuentas y respaldos.
+**Recomendación:** publicar la PWA en GitHub Pages (sin costo de alojamiento) con la clave de Google Maps restringida por dominio, y migrar a base de datos gestionada cuando se requiera multiusuario real con cuentas y respaldos.
 
 ## 8. Alcance de la primera versión
 Incluida: registro de usuarios, catálogo de productos, mapa, filtros, fichas de establecimientos, contacto, seguimiento comercial y panel administrativo.

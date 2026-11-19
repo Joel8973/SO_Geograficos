@@ -5,6 +5,9 @@
    ========================================================================= */
 'use strict';
 
+/* Configuración (js/config.js): clave de Google Maps JavaScript API */
+const CONFIG = window.APP_CONFIG || {GOOGLE_MAPS_API_KEY: '', mapaInicialZoom: 11};
+
 /* ---------- Utilidades de persistencia ---------- */
 const DB = {
   leer(clave, defecto) {
@@ -44,6 +47,10 @@ const App = {
   },
   mapa: null,
   marcadores: [],
+  infoWindow: null,
+  marcadorUsuario: null,
+  miniMapa: null,
+  mapsListo: false,
 
   /* =====================================================================
      INICIALIZACIÓN
@@ -53,8 +60,7 @@ const App = {
     this.precargarCategorias();
     this.configurarEventos();
     this.actualizarPerfil();
-    this.iniciarMapa();
-    this.aplicarFiltros();
+    this.cargarGoogleMaps();
     this.actualizarRegistro('Carga inicial', `Se cargaron ${this.estado.establecimientos.length} establecimientos desde la base de datos del cantón Latacunga.`);
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   },
@@ -99,14 +105,99 @@ const App = {
     document.addEventListener('keydown', e => { if (e.key === 'Escape') this.cerrarModal(); });
   },
 
+  /* -------------------------------------------------------------------
+     GOOGLE MAPS API
+     ------------------------------------------------------------------- */
+  cargarGoogleMaps() {
+    const key = (CONFIG.GOOGLE_MAPS_API_KEY || '').trim();
+    if (!key || key === 'TU_API_KEY_AQUI') {
+      this.aplicarFiltros();
+      this.mostrarAvisoApi();
+      return;
+    }
+    if (window.google && window.google.maps) {
+      this.onGoogleMapsReady();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js'
+      + '?key=' + encodeURIComponent(key)
+      + '&loading=async&v=weekly&callback=App.onGoogleMapsReady';
+    script.async = true;
+    script.onerror = () => {
+      this.aplicarFiltros();
+      this.mostrarAvisoApi('No se pudo cargar Google Maps. Revisa tu conexión y la API Key.');
+    };
+    document.head.appendChild(script);
+  },
+
+  onGoogleMapsReady() {
+    this.mapsListo = true;
+    this.iniciarMapa();
+    this.aplicarFiltros();
+  },
+
+  mostrarAvisoApi(mensaje) {
+    const el = document.getElementById('map');
+    if (!el) return;
+    el.innerHTML = `<div class="mapa-aviso-api">
+      <div class="mapa-aviso-api-icono">🗺️</div>
+      <h3>Google Maps necesita una API Key</h3>
+      <p>${mensaje ? esc(mensaje) : 'Abre <code>js/config.js</code> y pega tu clave de Google Maps JavaScript API en <code>GOOGLE_MAPS_API_KEY</code>, luego recarga la página.'}</p>
+      <p class="mapa-aviso-api-paso">También habilita <b>Maps JavaScript API</b> y <b>Geocoding API</b> en Google Cloud.</p>
+      <button class="btn btn-primary" onclick="App.abrirAyudaApi()">Ver instrucciones</button>
+    </div>`;
+  },
+
+  abrirAyudaApi() {
+    this.abrirModal('Configurar Google Maps API', `
+      <p><b>1.</b> Entra a <a href="https://console.cloud.google.com/google/maps-apis/" target="_blank">Google Cloud Console → Maps API</a>.</p>
+      <p><b>2.</b> Crea un proyecto y habilita <b>Maps JavaScript API</b> y <b>Geocoding API</b>.</p>
+      <p><b>3.</b> En <i>Credenciales</i>, crea una <b>Clave de API</b> y restríngela por referenciadores HTTP (<code>http://localhost:8080/*</code>).</p>
+      <p><b>4.</b> Abre <code>js/config.js</code> y reemplaza <code>TU_API_KEY_AQUI</code> por tu clave.</p>
+      <p><b>5.</b> Recarga la página (Ctrl+F5).</p>
+      <p class="aviso">El listado, las fichas y el resto de la app funcionan igual sin la clave; solo el mapa no se dibuja.</p>
+      <div class="modal-acciones"><button class="btn btn-primary" onclick="App.cerrarModal()">Entendido</button></div>`);
+  },
+
   iniciarMapa() {
-    if (this.mapa) return;
-    this.mapa = L.map('map', {zoomControl: false}).setView([this.estado.lat, this.estado.lon], 11);
-    L.control.zoom({position: 'bottomright'}).addTo(this.mapa);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '&copy; OpenStreetMap'
-    }).addTo(this.mapa);
-    setTimeout(() => this.mapa.invalidateSize(), 100);
+    if (this.mapa || !this.mapsListo) return;
+    const g = window.google.maps;
+    this.mapa = new g.Map(document.getElementById('map'), {
+      center: {lat: this.estado.lat, lng: this.estado.lon},
+      zoom: CONFIG.mapaInicialZoom || 11,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+      gestureHandling: 'cooperative',
+      clickableIcons: false
+    });
+    this.infoWindow = new g.InfoWindow();
+    setTimeout(() => this.redimensionarMapa(), 100);
+  },
+
+  redimensionarMapa() {
+    if (this.mapsListo && this.mapa && window.google.maps.event) {
+      window.google.maps.event.trigger(this.mapa, 'resize');
+    }
+  },
+
+  iconoMarcador(tipo) {
+    const colores = {
+      Tienda: '#0b6e4f', Minimercado: '#d68910', Supermercado: '#2874a6', Otro: '#7f8c8d'
+    };
+    const simbolos = {Tienda: '🏪', Minimercado: '🏬', Supermercado: '🏢'};
+    const color = colores[tipo] || colores.Otro;
+    const simbolo = simbolos[tipo] || '📍';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="44" viewBox="0 0 34 44">
+      <path d="M17 1C8.7 1 2 7.7 2 16c0 11 15 27 15 27s15-16 15-27C32 7.7 25.3 1 17 1z" fill="${color}" stroke="#fff" stroke-width="2"/>
+      <circle cx="17" cy="16" r="10" fill="#fff" opacity="0.92"/>
+      <text x="17" y="21" font-size="12" text-anchor="middle">${simbolo}</text></svg>`;
+    return {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+      scaledSize: new window.google.maps.Size(34, 44),
+      anchor: new window.google.maps.Point(17, 42)
+    };
   },
 
   /* =====================================================================
@@ -119,7 +210,7 @@ const App = {
       b.classList.toggle('activo', b.dataset.nav === vista));
     this.estado.vista = vista;
     window.scrollTo(0, 0);
-    if (vista === 'mapa') setTimeout(() => this.mapa.invalidateSize(), 50);
+    if (vista === 'mapa') setTimeout(() => this.redimensionarMapa(), 50);
     if (vista === 'productos') this.renderizarProductos();
     if (vista === 'oportunidades') this.renderizarOportunidades();
     if (vista === 'admin') this.renderizarAdmin();
@@ -201,9 +292,11 @@ const App = {
       pos => {
         this.estado.lat = pos.coords.latitude; this.estado.lon = pos.coords.longitude;
         this.estado.ubicacionUsuario = true;
-        this.mapa.setView([this.estado.lat, this.estado.lon], 13);
-        L.marker([this.estado.lat, this.estado.lon], {title: 'Tú estás aquí'})
-          .addTo(this.mapa).bindPopup('📍 Tu ubicación actual');
+        if (this.mapsListo) {
+          this.mapa.setCenter({lat: this.estado.lat, lng: this.estado.lon});
+          this.mapa.setZoom(13);
+          this.ponerMarcadorUsuario();
+        }
         this.aplicarFiltros();
         this.toast('Ubicación obtenida');
       },
@@ -221,11 +314,54 @@ const App = {
     );
   },
 
+  ponerMarcadorUsuario() {
+    if (!this.mapsListo) return;
+    if (this.marcadorUsuario) this.marcadorUsuario.setMap(null);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="8" fill="#1565c0" stroke="#fff" stroke-width="3"/>
+      <circle cx="10" cy="10" r="2.5" fill="#fff"/></svg>`;
+    this.marcadorUsuario = new window.google.maps.Marker({
+      position: {lat: this.estado.lat, lng: this.estado.lon},
+      map: this.mapa,
+      title: 'Tú estás aquí',
+      zIndex: 9999,
+      icon: {
+        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+        scaledSize: new window.google.maps.Size(20, 20),
+        anchor: new window.google.maps.Point(10, 10)
+      }
+    });
+    this.marcadorUsuario.addListener('click', () => {
+      this.infoWindow.setContent('<b>📍 Tu ubicación actual</b>');
+      this.infoWindow.open(this.mapa, this.marcadorUsuario);
+    });
+  },
+
   guardarUbicacionManual() {
+    const dir = (document.getElementById('dirManual')?.value || '').trim();
+    if (dir && this.mapsListo) { this.geocodificarManual(dir); return; }
     this.estado.lat = parseFloat(document.getElementById('latManual').value) || this.estado.lat;
     this.estado.lon = parseFloat(document.getElementById('lonManual').value) || this.estado.lon;
-    this.mapa.setView([this.estado.lat, this.estado.lon], 13);
+    if (this.mapsListo) {
+      this.mapa.setCenter({lat: this.estado.lat, lng: this.estado.lon});
+      this.mapa.setZoom(13);
+      this.ponerMarcadorUsuario();
+    }
     this.aplicarFiltros(); this.cerrarModal(); this.toast('Ubicación actualizada');
+  },
+
+  geocodificarManual(direccion) {
+    if (!this.mapsListo) { this.toast('Google Maps no está disponible'); return; }
+    new window.google.maps.Geocoder().geocode({address: direccion + ', Latacunga, Cotopaxi, Ecuador'}, (res, status) => {
+      if (status !== 'OK' || !res[0]) { this.toast('No se encontró esa dirección'); return; }
+      const p = res[0].geometry.location;
+      this.estado.lat = p.lat(); this.estado.lon = p.lng();
+      this.estado.ubicacionUsuario = true;
+      this.mapa.setCenter(p); this.mapa.setZoom(13);
+      this.ponerMarcadorUsuario();
+      this.aplicarFiltros(); this.cerrarModal();
+      this.toast('Ubicación: ' + res[0].formatted_address);
+    });
   },
 
   obtenerFiltrados() {
@@ -243,22 +379,27 @@ const App = {
   aplicarFiltros() {
     const lista = this.obtenerFiltrados();
     document.getElementById('numResultados').textContent = lista.length;
-    // Marcadores
-    this.marcadores.forEach(m => this.mapa.removeLayer(m));
+    // Marcadores (Google Maps)
+    this.marcadores.forEach(m => m.setMap(null));
     this.marcadores = [];
-    lista.forEach(e => {
-      const color = e.tipo.toLowerCase().replace('ó','o');
-      const icono = L.divIcon({
-        className: '', iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -24],
-        html: `<div class="marker-div marker-${color}"><span>${e.tipo === 'Supermercado' ? '🏢' : e.tipo === 'Minimercado' ? '🏬' : '🏪'}</span></div>`
+    if (this.mapsListo && window.google.maps.Marker) {
+      lista.forEach(e => {
+        const m = new window.google.maps.Marker({
+          position: {lat: e.lat, lng: e.lon},
+          map: this.mapa,
+          title: e.nombre,
+          icon: this.iconoMarcador(e.tipo)
+        });
+        m.addListener('click', () => {
+          this.infoWindow.setContent(`<div class="popup-titulo">${esc(e.nombre)}</div>
+            <div class="popup-tipo">${esc(e.tipo)} · ${esc(e.sector || e.parroquia)}</div>
+            <div style="margin-top:4px">${e.recepcion === 'Recibe propuestas' ? '✅ Recibe propuestas' : '⏸️ ' + esc(e.recepcion)}</div>
+            <a href="#" class="popup-btn" onclick="App.verFicha('${e.id}');return false;">Ver ficha →</a>`);
+          this.infoWindow.open(this.mapa, m);
+        });
+        this.marcadores.push(m);
       });
-      const m = L.marker([e.lat, e.lon], {icon: icono}).addTo(this.mapa);
-      m.bindPopup(`<div class="popup-titulo">${esc(e.nombre)}</div>
-        <div class="popup-tipo">${esc(e.tipo)} · ${esc(e.sector || e.parroquia)}</div>
-        <div style="margin-top:4px">${e.recepcion === 'Recibe propuestas' ? '✅ Recibe propuestas' : '⏸️ ' + esc(e.recepcion)}</div>
-        <a href="#" class="popup-btn" onclick="App.verFicha('${e.id}');return false;">Ver ficha →</a>`);
-      this.marcadores.push(m);
-    });
+    }
     this.renderizarLista(lista);
   },
 
@@ -267,7 +408,7 @@ const App = {
     document.getElementById('btnVerLista').classList.toggle('activo', tipo === 'lista');
     document.getElementById('mapaContainer').classList.toggle('hidden', tipo !== 'mapa');
     document.getElementById('listaContainer').classList.toggle('hidden', tipo !== 'lista');
-    if (tipo === 'mapa') setTimeout(() => this.mapa.invalidateSize(), 50);
+    if (tipo === 'mapa') setTimeout(() => this.redimensionarMapa(), 50);
   },
 
   renderizarLista(lista) {
@@ -295,7 +436,10 @@ const App = {
   },
 
   cómoLlegar(lat, lon, nombre) {
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&destination_place_id=&travelmode=driving`, '_blank');
+    const origen = this.estado.ubicacionUsuario
+      ? `&origin=${this.estado.lat},${this.estado.lon}` : '';
+    const destino = `&destination=${lat},${lon}&travelmode=driving`;
+    window.open(`https://www.google.com/maps/dir/?api=1${origen}${destino}`, '_blank');
   },
 
   /* =====================================================================
@@ -367,10 +511,18 @@ const App = {
       </div>`;
     this.mostrar('ficha');
     setTimeout(() => {
-      const mm = L.map('miniMapa', {zoomControl:false, dragging:false, scrollWheelZoom:false})
-        .setView([e.lat, e.lon], 15);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OSM'}).addTo(mm);
-      L.marker([e.lat,e.lon]).addTo(mm);
+      const el = document.getElementById('miniMapa');
+      if (!el) return;
+      if (!this.mapsListo) {
+        el.innerHTML = `<div class="aviso">Configura la API Key de Google Maps en <code>js/config.js</code> para ver el mapa.</div>`;
+        return;
+      }
+      const centro = {lat: e.lat, lng: e.lon};
+      this.miniMapa = new window.google.maps.Map(el, {
+        center: centro, zoom: 15, disableDefaultUI: true,
+        gestureHandling: 'none', clickableIcons: false
+      });
+      new window.google.maps.Marker({position: centro, map: this.miniMapa, icon: this.iconoMarcador(e.tipo)});
     }, 80);
   },
 
